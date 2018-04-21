@@ -1,0 +1,17 @@
+version: '3'
+services:
+  web:
+    build: ./
+    restart: always
+    ports:
+      - '7001:7001'
+    depends_on:
+      - db
+  db:
+    build: ./Mysql.Dockerfile
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: xiaodao
+    volumes:
+      - /opt/mysql/:/var/lib/mysql

@@ -6,8 +6,9 @@ COPY . ./
 
 RUN npm i --production
 
-EXPOSE 7001
+RUN npm run migrate:down &&\
+    npm run migrate:up
 
-ENV EGG_SERVER_ENV prod
+EXPOSE 7001
 
 CMD npm run docker-start
