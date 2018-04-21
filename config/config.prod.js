@@ -1,3 +1,3 @@
 exports.sequelize={
-    host:'172.17.213.59'
+    host:'172.19.0.1'
 };
