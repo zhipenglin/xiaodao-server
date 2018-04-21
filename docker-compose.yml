@@ -9,7 +9,8 @@ services:
       - db
     container_name: xidao_server_run
   db:
-    build: ./Mysql.Dockerfile
+    build: ./
+    dockerfile: ./Mysql.Dockerfile
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
