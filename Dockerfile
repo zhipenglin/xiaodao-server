@@ -6,9 +6,8 @@ COPY . ./
 
 RUN npm i --production
 
-RUN npm run migrate:down &&\
-    npm run migrate:up
-
 EXPOSE 7001
 
-CMD npm run docker-start
+CMD npm run migrate:down &&\
+    npm run migrate:up &&\
+    npm run docker-start
