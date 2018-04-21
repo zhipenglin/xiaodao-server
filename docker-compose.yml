@@ -7,6 +7,7 @@ services:
       - '7001:7001'
     depends_on:
       - db
+    container_name: xidao_server_run
   db:
     build: ./Mysql.Dockerfile
     restart: always
@@ -15,3 +16,4 @@ services:
       MYSQL_DATABASE: xiaodao
     volumes:
       - /opt/mysql/:/var/lib/mysql
+    container_name: mysql_run
