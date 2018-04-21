@@ -23,6 +23,7 @@
     "node": ">=8.9.0"
   },
   "scripts": {
+    "docker-start":"egg-scripts start --title=egg-server-xiaodao-server",
     "start": "egg-scripts start --daemon --title=egg-server-xiaodao-server",
     "stop": "egg-scripts stop --title=egg-server-xiaodao-server",
     "dev": "egg-bin dev",

@@ -3,7 +3,7 @@
 const Controller = require('egg').Controller;
 
 const getQuestions=async (ctx,deepth=0)=>{
-    if(deepth>1){
+    if(deepth>10){
         return ;
     }
     deepth++;
@@ -24,25 +24,83 @@ const getQuestions=async (ctx,deepth=0)=>{
 
 class GameController extends Controller {
     async start(){
-        this.ctx.session.game={
-            score:0,
-            current:0
-        };
-        await getQuestions(this.ctx);
-        this.ctx.body=this.ctx.session.game;
-    }
-    async getQuestion() {
-        const {game}=this.ctx.session;
-        if(!game){
+        if(!this.ctx.session.user){
             return this.ctx.body={
                 err_no:500,
-                err_msg:'请先开始游戏'
+                err_msg:'请先登录'
+            };
+        }
+        if(!this.ctx.session.game){
+            this.ctx.session.game={
+                score:0,
+                blood:5,
+                current:0,
+                time:new Date(),
+                list:[]
+            };
+        }else{
+            const {answer}=this.ctx.request.body,game=this.ctx.session.game,answerIndex=['A','B','C','D'].indexOf(answer);
+            const isRight=game.question.answer===answerIndex;
+
+            if(isRight){
+                const lostTime=Math.floor(new Date()-game.time)/1000;
+                game.blood=game.blood-Math.floor(lostTime/60);
+                game.score=game.score+=Math.round(100-lostTime%60*100/60);
+                game.list.push(game.question.id);
+            }else{
+                game.blood=game.blood-1;
+            }
+            game.time=new Date();
+            const end=game.blood<=0;
+            if(end){
+                await this.ctx.model.Record.add({
+                    user:this.ctx.session.user,
+                    score:game.score,list:game.list.join(',')
+                });
+                delete this.ctx.session.game;
+                return this.ctx.body={
+                    err_no:0,
+                    results:{
+                        blood:game.blood,
+                        score:game.score
+                    }
+                };
+            }
+            if(!isRight&&!end){
+                return this.ctx.body={
+                    err_no:0,
+                    results:{
+                        id:game.question.id,
+                        title:game.question.title,
+                        answer:game.question.answer,
+                        blood:game.blood,
+                        score:game.score
+                    }
+                };
             }
         }
-        if(game.questions.length===0){
-            await getQuestions(this.ctx);
+
+        const game=this.ctx.session.game;
+
+        await getQuestions(this.ctx);
+        const question=game.questions.pop();
+        if(!question){
+            return this.ctx.body={
+                err_no:500,
+                err_msg:'未获取到题目'
+            };
         }
-        this.ctx.body=game.questions.pop();
+        game.question=question;
+        return this.ctx.body={
+            err_no:0,
+            results:{
+                id:question.id,
+                title:question.title,
+                answer:question.answer,
+                blood:game.blood,
+                score:game.score
+            }
+        };
     }
 }
 
