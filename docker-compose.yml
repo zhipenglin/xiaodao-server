@@ -10,6 +10,7 @@ services:
     container_name: xidao_server_run
   db:
     build: ./
+    context: ./
     dockerfile: ./Mysql.Dockerfile
     restart: always
     environment:
