@@ -9,5 +9,6 @@ module.exports = app => {
     router.post('/login', controller.user.login);
     router.post('/upload', controller.question.upload);
 
-    router.post('/start',controller.game.start);
+    router.post('/questions',controller.game.getQuestions);
+    router.post('/record',controller.game.record);
 };

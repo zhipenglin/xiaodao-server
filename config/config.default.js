@@ -20,6 +20,13 @@ module.exports = appInfo => {
         timezone: '+08:00'
     };
 
+    config.session = {
+        key: 'EGG_SESS',
+        maxAge: 24 * 3600 * 1000 *365, // 1 天
+        httpOnly: true,
+        encrypt: true,
+    }
+
     config.security = {
         csrf: {
             enable: false

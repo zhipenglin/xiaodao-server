@@ -1,6 +1,7 @@
 'use strict';
 
 const Controller = require('egg').Controller;
+const get=require('lodash/get');
 
 const getQuestions=async (ctx,deepth=0)=>{
     if(deepth>10){
@@ -100,6 +101,57 @@ class GameController extends Controller {
                 blood:game.blood,
                 score:game.score
             }
+        };
+    }
+
+    async getQuestions(){
+        const game=get(this.ctx.session,'game');
+        if(!game){
+            return this.ctx.body={
+                err_no:500,
+                err_msg:'没有登录'
+            };
+        }
+
+        const getQuestions=async (deepth=0)=>{
+            if(deepth>10){
+                return ;
+            }
+            deepth++;
+            if(!game.key){
+                game.key=await this.ctx.model.Question.getKey();
+            }
+            let questions=await this.ctx.model.Question.get({key:game.key});
+            if(questions.length===0){
+                game.key=null;
+            }else{
+                return questions;
+            }
+            return await getQuestions(deepth);
+        };
+
+        const question=await getQuestions();
+        if(!question){
+            return this.ctx.body={
+                err_no:500,
+                err_msg:'未获取到题目'
+            };
+        }
+        return this.ctx.body={
+            err_no:0,
+            results:question
+        };
+    }
+
+    async record(){
+        const {score,list}=this.ctx.request.body;
+        await this.ctx.model.Record.add({
+            user:this.ctx.session.user,
+            score:score,list:(list||[]).join(',')
+        });
+        return this.ctx.body={
+            err_no:0,
+            results:null
         };
     }
 }
